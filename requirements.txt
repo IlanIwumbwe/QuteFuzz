@@ -1,7 +1,0 @@
-pytket==1.32.0
-qiskit==1.2.1
-pytket-qiskit==0.56.0
-matplotlib==3.9.1
-cirq==1.4.1
-sympy==1.13.1
-z3-solver==4.13.0.0
