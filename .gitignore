@@ -1,0 +1,10 @@
+src/*.o
+gen
+.vscode
+quantum_circuits
+log.txt
+__pycache__
+*.ipynb
+issue_draft.md
+logfile.txt
+.venv
