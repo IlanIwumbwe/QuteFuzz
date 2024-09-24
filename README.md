@@ -1,8 +1,7 @@
 # QuteFuzz
-A bug finding tool for quantum compilers.
 
 <p align="center" width="100%">
-    <img width="20%" src="images/qutefuzz.png">
+    <img width="25%" src="images/qutefuzz.png">
 
 QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly. 
 
