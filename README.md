@@ -52,6 +52,8 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 
 ### Set up a docker environment
 
+If you already have a Linux environment, skip to step 6
+
 1. You need to install docker on your system. Follow these [installation steps](https://docs.docker.com/get-started/get-docker/) to do so.
 2. Clone this repository
 3. Navigate into the repository, and setup a docker image using:
@@ -66,6 +68,10 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 5. Activate the python virtual environment using:
     ```sh
     source .qutefuzz/bin/activate
+    ```
+6. Install python dependencies:
+    ```sh
+    pip install -r requirements.txt
     ```
 
 ### Generate and run circuits
