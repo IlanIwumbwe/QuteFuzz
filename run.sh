@@ -24,7 +24,7 @@ function ProgressBar {
 }
 
 print_usage() {
-    echo -e "Usage: ./build.sh [-p] [-v]"
+    echo -e "Usage: ./run.sh [-p] [-v]"
     echo -e "The -v flag makes the quantum_circuits/_results.txt file more verbose, as well as put circuit generation information into quantum_circuits/log.txt"
     echo -e "The -p will plot the probability distributions after running the circuits."
 }
@@ -53,14 +53,15 @@ done
 make
 print_questions
 
-if [[ v = "-v" ]] 
+if [ "$v" = "-v" ] 
 then
     ./gen -n "$x" "-$f" -d >> "quantum_circuits/log.txt"
 else
     ./gen -n "$x" "-$f"
 fi
 
-if [[ ":$PYTHONPATH:" != *":$(pwd):"* ]]; then
+if [[ ":$PYTHONPATH:" != *":$(pwd):"* ]]
+then
     export PYTHONPATH="${PYTHONPATH}:$(pwd)"
     echo "Adding project to PYTHONPATH" 
 fi

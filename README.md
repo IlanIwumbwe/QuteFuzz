@@ -11,7 +11,7 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 |--------|--------|-------|
 | Benny  | [:octocat:](https://github.com/Bennybenassius) | benny.liu21@imperial.ac.uk |
 | Ilan  | [:octocat:](https://github.com/IlanIwumbwe) | ii122@imperial.ac.uk |
-| Dr.John Wickerson  | [:octocat:](https://github.com/johnwickerson) | j.wickerson@imperial.ac.uk |
+| Dr. John Wickerson  | [:octocat:](https://github.com/johnwickerson) | j.wickerson@imperial.ac.uk |
 
 ## Bugs found with the help of QuteFuzz
 
@@ -19,33 +19,27 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 
 | Compiler Bugs | Simulator Bugs | Not implemented |
 |---------------|----------------|--------|
-| [Issue 1553 &#x1F41E;](https://github.com/CQCL/tket/issues/1553)  | [Issue 375 &#x1F41E;](https://github.com/CQCL/pytket-qiskit/issues/375) | 
+| [Issue 1553 &#x1F41E;](https://github.com/CQCL/tket/issues/1553)  | [Issue 375 &#x1F41E;](https://github.com/CQCL/pytket-qiskit/issues/375) | [Issue 374 &#x1F41E;](https://github.com/CQCL/pytket-qiskit/issues/374) |
 | [Issue 1566  &#x1F41E;](https://github.com/CQCL/tket/issues/1566) | 
 | [Issue 1534  &#x1F41E;](https://github.com/CQCL/tket/issues/1534) (Known) |
 | [Issue 1536  &#x1F41E;](https://github.com/CQCL/tket/issues/1536) |
 | [Issue 1552  &#x1F41E;](https://github.com/CQCL/tket/issues/1552) | | 
 | [Issue 1554  &#x1F41E;](https://github.com/CQCL/tket/issues/1554) | |
-| | | [Issue 374 &#x1F41E;](https://github.com/CQCL/pytket-qiskit/issues/374) |
+| | | |
 
 ### Qiskit:
 | Compiler Bugs | Simulator Bugs |
 |---------------|----------------|
-| [Issue 13118 &#x1F41E;](https://github.com/Qiskit/qiskit/issues/13118) |  | 
-| [Issue 13079 &#x1F41E;](https://github.com/Qiskit/qiskit/issues/13079) |
+| [Issue 13118 &#x1F41E;](https://github.com/Qiskit/qiskit/issues/13118) | [Issue 2230 &#x1F41E;](https://github.com/Qiskit/qiskit-aer/issues/2230) | 
+| [Issue 13079 &#x1F41E;](https://github.com/Qiskit/qiskit/issues/13079) | [Issue 2215 &#x1F41E;](https://github.com/Qiskit/qiskit-aer/issues/2215)(Unacknowledged) |
 | [Issue 13162 &#x1F41E;](https://github.com/Qiskit/qiskit/issues/13162) | |
-| | [Issue 2230 &#x1F41E;](https://github.com/Qiskit/qiskit-aer/issues/2230) |
 | [Issue 13165 &#x1F41E;](https://github.com/Qiskit/qiskit/issues/13165)(Unacknowledged) |  |
-|  | [Issue 2215 &#x1F41E;](https://github.com/Qiskit/qiskit-aer/issues/2215)(Unacknowledged) |
 
 ### Cirq:
 
 | Compiler Bugs | Simulator Bugs | Circuit Construction |
 |---------------|----------------|--------|
-|               | [Issue 6730 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6730) | 
-| | | [Issue 6727 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6727) | 
-| [Issue 6507 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6507) (Known) | | |
-
-
+| [Issue 6507 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6507) (Known) | [Issue 6730 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6730) | [Issue 6727 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6727) |
 
 ## Running the fuzzer
 
@@ -75,7 +69,7 @@ If you already have a Linux environment, skip to step 6
 
 ### Generate and run circuits
 
-- Use `./run.sh` to generate and run circuits. To see all available flags, use `./run.sh -h`.
+- Use `source run.sh` to generate and run circuits. To see all available flags, use `./run.sh -h`.
 - You can run the generator on its own by compiling using `make`. Generate n circuits using:
     ```sh
     ./gen -n {n}
