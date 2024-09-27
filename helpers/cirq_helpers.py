@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import sys, pathlib
 from cirq.transformers import *
 
+quantum_circuits_path = pathlib.Path("quantum_circuits")
+plots_path = quantum_circuits_path / "plots"
+
 # All passes are not done in-place
 all_passes = {"stratified_circuit": stratified_circuit,
 			  "merge_single_qubit_gates_to_phased_x_and_z": merge_single_qubit_gates_to_phased_x_and_z,
@@ -61,6 +64,23 @@ def read_circ_args() -> Tuple[bool, bool]:
 
 	return verbose, plot
 
+def plot_cirq_dist(c_orig, c_new, circ_num : int) -> None:
+	"""
+		Plot distributions of results for original vs optimised circuit
+	"""
+	
+	plots_path.mkdir(exist_ok=True)
+
+	filename_orig = plots_path / ("Circ"+str(circ_num)+"_Original")
+	filename_new = plots_path / ("Circ"+str(circ_num)+"_New")
+
+	plot_state_histogram(c_orig, plt.subplot())
+	plt.savefig(filename_orig)
+	plt.close()
+	plot_state_histogram(c_new, plt.subplot())
+	plt.savefig(filename_new)
+	plt.close()
+
 def compare_circuits(circ : Circuit, gs : str, circ_num : int):
 	simulator = Simulator()
 	context = TransformerContext(tags_to_ignore=("nocompile",), deep=True, logger=TransformerLogger())
@@ -75,14 +95,8 @@ def compare_circuits(circ : Circuit, gs : str, circ_num : int):
 
 	print(ks_test(c_orig, c_new, shots), "\n")
 
-
 	if(plot): 
-		plot_state_histogram(c_orig, plt.subplot())
-		plt.savefig("quantum_circuits/plots/Circ"+str(circ_num)+"_Original")
-		plt.close()
-		plot_state_histogram(c_new, plt.subplot())
-		plt.savefig("quantum_circuits/plots/Circ"+str(circ_num)+"_New")
-		plt.close()
+		plot_cirq_dist(c_orig, c_new, circ_num)
 
 def individual_pass(circ : Circuit, circ_num : int, pass_to_do : str):
 	simulator = Simulator()
@@ -101,10 +115,4 @@ def individual_pass(circ : Circuit, circ_num : int, pass_to_do : str):
 	print(ks_test(c_orig, c_new, shots), "\n")
 
 	if(plot): 
-		pathlib.Path("quantum_cirucits/plots").mkdir(exist_ok=True)
-		plot_state_histogram(c_orig, plt.subplot())
-		plt.savefig("quantum_circuits/plots/Circ"+str(circ_num)+"_Original")
-		plt.close()
-		plot_state_histogram(c_new, plt.subplot())
-		plt.savefig("quantum_circuits/plots/Circ"+str(circ_num)+"_New")
-		plt.close()
+		plot_cirq_dist(c_orig, c_new, circ_num)

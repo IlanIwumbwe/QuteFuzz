@@ -11,6 +11,9 @@ from scipy.stats import ks_2samp
 from qiskit.visualization import plot_histogram
 import sys, random, pathlib, numpy as np
 
+quantum_circuits_path = pathlib.Path("quantum_circuits")
+plots_path = quantum_circuits_path / "plots"
+
 # List of all optimisation compiler passes
 opt_passes = {  "Optimize1qGates": Optimize1qGates(), "Optimize1qGatesDecomposition":Optimize1qGatesDecomposition(),
                 "Collect1qRuns": Collect1qRuns(), "Collect2qBlocks": Collect2qBlocks(),
@@ -114,7 +117,7 @@ def ks_test(counts1 : Counter[Tuple[int, ...], int], counts2 : Counter[Tuple[int
 		Counter({(1,0,0,0,0,):24500, (1,1,0,0,0,):25500})
 	'''
 
-	return p_value  
+	return p_value 
 
 '''
 Called functions
@@ -153,6 +156,14 @@ def compare_statevectors(qc : QuantumCircuit, pass_to_do : str):
             print("Failed test!")
             print("dot product is: ", abs(vdot(sv0, sv1)), "\n") 
 
+def plot_qiskit_dist(counts : Counter[Tuple[int, ...], int], circuit_number : int):
+    """
+        Plot probability distribution of results based on counts after running circuit
+    """
+    plots_path.mkdir(exist_ok=True)
+    filename = plots_path / ("circuit"+str(circuit_number)+".png")
+    plot_histogram(counts, figsize=[9,5], filename=filename)
+
 def run_on_simulator(qc : QuantumCircuit, circuit_number : int):
     # Lazy importing to speed up other circuits
     from qiskit_aer import AerSimulator
@@ -166,8 +177,7 @@ def run_on_simulator(qc : QuantumCircuit, circuit_number : int):
     verbose, plot = read_circ_args()
 	
     if(plot): 
-        pathlib.Path("quantum_cirucits/plots").mkdir(exist_ok=True)
-        plot_histogram(c1, figsize=[9,5], filename="quantum_circuits/plots/circuit"+str(circuit_number)+".png")
+        plot_qiskit_dist(c1, circuit_number)
     
     ks_vals = []
 
@@ -192,8 +202,7 @@ def run_routing_simulation(qc : QuantumCircuit, circuit_number : int):
 
     verbose, plot = read_circ_args()
     if(plot): 
-        pathlib.Path("quantum_cirucits/plots").mkdir(exist_ok=True)
-        plot_histogram(counts_unrestricted, figsize=[9,5], filename="quantum_circuits/plots/circuit"+str(circuit_number)+".png")
+        plot_qiskit_dist(counts_unrestricted, circuit_number)
 
     map = generate_custom_mapping(qc.num_qubits)
     s_restricted = GenericBackendV2(num_qubits=qc.num_qubits, seed=1234, coupling_map=map, noise_info=False)
@@ -211,8 +220,7 @@ def run_routing_simulation(qc : QuantumCircuit, circuit_number : int):
         # print(dict(sorted(c.items())))
 
         if(plot): 
-            pathlib.Path("quantum_cirucits/plots").mkdir(exist_ok=True)
-            plot_histogram(c, figsize=[9,5], filename="quantum_circuits/plots/circuit"+str(circuit_number)+"_"+str(i)+".png")
+            plot_qiskit_dist(c, circuit_number)
 
     # Simply prints the ksvals for manual validation
     print(ks_vals, "\n")
