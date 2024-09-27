@@ -52,8 +52,6 @@ std::bitset<4> numtobin(U4& number);
 
 float f_get_rand(float lb, float ub);
 
-bool is_digit(std::string& s);
-
 template<typename T>
 void v_append(std::vector<T>& v1, std::vector<T>& v2);
 

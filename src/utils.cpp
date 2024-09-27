@@ -63,44 +63,16 @@ std::bitset<4> numtobin(U4& number){
     return binaryRepresentation;
 }
 
-/// @brief Is the given string a digit?
-/// @param s 
-/// @return true if so, else false
-bool is_digit(std::string& s){
-    std::stoi(s);
-
-    return true;
-}
-
-std::vector<std::string> qiskit_opt_passes = {"Optimize1qGates", "Optimize1qGatesDecomposition",
-    "Collect1qRuns", "Collect2qBlocks",
-    "CollectMultiQBlocks","CollectLinearFunctions",
-    "CollectCliffords","ConsolidateBlocks",
-    "CXCancellation","InverseCancellation",
-    "CommutationAnalysis","CommutativeCancellation",
-    "CommutativeInverseCancellation",
-    "Optimize1qGatesSimpleCommutation",
-    "RemoveDiagonalGatesBeforeMeasure",
-    "RemoveResetInZeroState","RemoveFinalReset",
-    "HoareOptimizer","TemplateOptimization",
-    "ResetAfterMeasureSimplification",//"EchoRZXWeylDecomposition"
-    "OptimizeCliffords","ElidePermutations",
-    "NormalizeRXAngle","OptimizeAnnotated", "AllOpt"
+std::vector<std::string> qiskit_opt_passes = {"Optimize1qGates", "Optimize1qGatesDecomposition", "Collect1qRuns", "Collect2qBlocks",
+    "CollectMultiQBlocks","CollectLinearFunctions","CollectCliffords","ConsolidateBlocks","CXCancellation","InverseCancellation",
+    "CommutationAnalysis","CommutativeCancellation","CommutativeInverseCancellation","Optimize1qGatesSimpleCommutation","RemoveDiagonalGatesBeforeMeasure",
+    "RemoveResetInZeroState","RemoveFinalReset","HoareOptimizer","TemplateOptimization","ResetAfterMeasureSimplification",
+    "OptimizeCliffords","ElidePermutations","NormalizeRXAngle","OptimizeAnnotated", "AllOpt"
 };
 
-std::vector<std::string> cirq_all_passes = {"stratified_circuit",
-			  "merge_single_qubit_gates_to_phased_x_and_z",
-			  "merge_single_qubit_gates_to_phxz",
-			  "merge_single_qubit_moments_to_phxz",
-			  "merge_k_qubit_unitaries",
-			  "expand_composite",
-			  "eject_z", "eject_phased_paulis",
-			  "add_dynamical_decoupling",
-			  "drop_negligible_operations",
-			  "drop_empty_moments",
-			  "align_left", "align_right",
-			  };
-
+std::vector<std::string> cirq_all_passes = {"stratified_circuit","merge_single_qubit_gates_to_phased_x_and_z","merge_single_qubit_gates_to_phxz",
+    "merge_single_qubit_moments_to_phxz","merge_k_qubit_unitaries","expand_composite","eject_z", "eject_phased_paulis",
+    "add_dynamical_decoupling","drop_negligible_operations","drop_empty_moments","align_left", "align_right"};
 
 std::vector<std::string> cirq_target_gatesets = {"cz(allow_partial=True)", "cz(allow_partial=False)", "sqrtiswap"};
 
