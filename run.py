@@ -69,9 +69,10 @@ def main() -> int:
     # run circuits
     print("Running cirucits ....")
     for i, file in enumerate(sorted(os.listdir(QC_DIR))):
-
-        if (not os.path.isdir(file) and (file.split(".")[1] == "py")):
-            path = os.path.join(QC_DIR, file)
+        path = os.path.join(QC_DIR, file)
+        
+        if (not os.path.isdir(path) and (file.split(".")[1] == "py")):
+            
             log_path = os.path.join(QC_DIR, "_results.txt")
 
             progress_bar(i+1, int(args.num_of_programs))
