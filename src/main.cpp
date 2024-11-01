@@ -22,21 +22,6 @@ int main(int argc, char* argv[]) {
 	int files_to_generate = 0;
 	
 	switch(argc){
-		case 5:
-			if(((std::string)argv[1] == "-n")){
-				files_to_generate = get_files_to_generate(argv);
-				
-				if((std::string)argv[3] == "-q"){
-					f = f_qiskit;
-				} else if ((std::string)argv[3] == "-c"){
-					f = f_cirq;
-				}
-
-				generate(files_to_generate);
-			}
-
-			break;
-		
 		case 4:
 			if(((std::string)argv[1] == "-n")){
 				files_to_generate = get_files_to_generate(argv);
