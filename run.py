@@ -27,7 +27,7 @@ def setup_dir() -> None:
         os.mkdir(QC_DIR)
         print("Created", QC_DIR, "directory")
 
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser(description="Runs QuteFuzz generator and differential tester")
 
     parser.add_argument("frontend", type=str, help="Frontend to generate for ((q)iskit, (c)irq, (p)ytket)", default="p", choices=["qiskit","cirq","pytket","q","c","p"])
@@ -54,7 +54,9 @@ def main() -> None:
     elif (os.name == "posix"):
         exe = "./gen"
 
-    assert(os.path.exists(exe))
+    if not os.path.exists(exe):
+        print("Issue while compiling")
+        return -1
 
     subprocess.run([exe, "-n", args.num_of_programs, f"-{args.frontend[0]}"])
 
@@ -87,6 +89,7 @@ def main() -> None:
                     print(f"\nERROR '{e}' occured while running circuits, check", log_path, "for details")
 
     print("\nResults in ", log_path)
+    return 0
 
 if __name__ == "__main__":
 
