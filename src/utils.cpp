@@ -1,8 +1,6 @@
 #include "../headers/utils.h"
 #include <iostream>
 
-bool debug = false;
-bool plot = false;
 frontend f = f_pytket;
 
 // constants 

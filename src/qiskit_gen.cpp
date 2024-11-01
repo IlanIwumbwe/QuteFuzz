@@ -84,16 +84,18 @@ void qiskit::write_circuit(std::ofstream& stream, circuit_info& info){
 
 	apply_gates(stream, info, info.n_gates_to_add, info.nest_depth);
 
-	if(debug) {
+	#ifdef DEV
 		std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
-	}
+	#endif
 
 	if((info.circ_kind == main_circ)){
 		info.write_param_bindings(stream);	
 		stream << info.name << " = " << info.name << ".assign_parameters(bindings)" << std::endl;
 	}
 
-	if(debug) std::cout << info << std::endl;
+	#ifdef DEV
+		std::cout << info << std::endl;
+	#endif
 
 }
 
@@ -138,7 +140,9 @@ int qiskit::apply_gates(std::ofstream& stream, circuit_info& info, int gates_to_
 
 	info.unindent_one_level();
 	
-	if(debug) std::cout << "Added " << added_gates << " gates (including circbox gates)" << std::endl;
+	#ifdef DEV
+		std::cout << "Added " << added_gates << " gates (including circbox gates)" << std::endl;
+	#endif
 
 	return added_gates;
 }
@@ -275,7 +279,10 @@ void qiskit::generate_circuits(int n){
 	Circuit_Restrictions cr{"Qiskit_Gateset", qiskit_flags};
 
 	for(int i = 0; i < n; ++i){
-		if(debug) std::cout << "================== circuit" << i+1 << ".py =========================\n" << std::endl;
+		
+		#ifdef DEV
+			std::cout << "================== circuit" << i+1 << ".py =========================\n" << std::endl;
+		#endif
 
 		circuit_filename = CIRCUITS_DIR / ("circuit" + std::to_string(i+1) + ".py");
 	

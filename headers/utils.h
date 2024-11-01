@@ -43,9 +43,6 @@ extern const int MAX_NEST_STATEMENTS;
 extern fs::path CIRCUITS_DIR;
 extern std::string paulis[4];
 
-extern bool debug;
-extern bool plot;
-
 int get_rand(int lb, int ub);
 
 std::bitset<4> numtobin(U4& number);
