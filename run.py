@@ -59,19 +59,20 @@ def main() -> None:
     subprocess.run([exe, "-n", args.num_of_programs, f"-{args.frontend[0]}"])
 
     current_directory = os.getcwd()
+    # export PYTHONPATH="${PYTHONPATH}:$(pwd)"
     if current_directory not in sys.path:
-        sys.path.append(current_directory)
+        sys.path.insert(0, current_directory)
         print("Adding project to PYTHONPATH")
 
     # run circuits
     print("Running cirucits ....")
     for i, file in enumerate(sorted(os.listdir(QC_DIR))):
-        if (os.path.isfile(file) and (file.split(".")[1] == "py")):
-            path = os.path.join(QC_DIR, file)
-            
-            progress_bar(i+1, int(args.num_of_programs))
 
+        if (not os.path.isdir(file) and (file.split(".")[1] == "py")):
+            path = os.path.join(QC_DIR, file)
             log_path = os.path.join(QC_DIR, "_results.txt")
+
+            progress_bar(i+1, int(args.num_of_programs))
 
             with open(log_path, "a") as f:
                 
@@ -85,7 +86,7 @@ def main() -> None:
                 except Exception as e:
                     print(f"\nERROR '{e}' occured while running circuits, check", log_path, "for details")
 
-    print()
+    print("\nResults in ", log_path)
 
 if __name__ == "__main__":
 
