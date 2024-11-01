@@ -61,7 +61,7 @@ def main() -> int:
     subprocess.run([exe, "-n", args.num_of_programs, f"-{args.frontend[0]}"])
 
     current_directory = os.getcwd()
-    # export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+    
     if current_directory not in sys.path:
         sys.path.insert(0, current_directory)
         print("Adding project to PYTHONPATH")
