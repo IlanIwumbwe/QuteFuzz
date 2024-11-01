@@ -30,8 +30,8 @@ def setup_dir() -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Runs QuteFuzz generator and differential tester")
 
-    parser.add_argument("frontend", type=str, help="Frontend to generate for ((q)iskit, (c)irq, (p)ytket)", default="p", choices=["qiskit","cirq","pytket","q","c","p"])
-    parser.add_argument("num_of_programs", type=str, help="Number of programs to generate")
+    parser.add_argument("--f", type=str, help="Frontend to generate for ((q)iskit, (c)irq, (p)ytket)", default="p", choices=["qiskit","cirq","pytket","q","c","p"])
+    parser.add_argument("--n", type=str, help="Number of programs to generate", default="1")
     parser.add_argument("-v", action="store_true",  help="Verbose adds extra information to the results log file")
     parser.add_argument("-p", action="store_true", help="Plot graphs")
 
@@ -55,10 +55,10 @@ def main() -> int:
         exe = "./gen"
 
     if not os.path.exists(exe):
-        print("Issue while compiling")
+        print("Issue while compiling, could not find executable", exe)
         return -1
 
-    subprocess.run([exe, "-n", args.num_of_programs, f"-{args.frontend[0]}"])
+    subprocess.run([exe, "-n", args.n, f"-{args.f[0]}"])
 
     project_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -75,7 +75,7 @@ def main() -> int:
             
             log_path = os.path.join(QC_DIR, "_results.txt")
 
-            progress_bar(i+1, int(args.num_of_programs))
+            progress_bar(i+1, int(args.n))
 
             with open(log_path, "a") as f:
                 
