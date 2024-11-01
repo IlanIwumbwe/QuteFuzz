@@ -60,10 +60,10 @@ def main() -> int:
 
     subprocess.run([exe, "-n", args.num_of_programs, f"-{args.frontend[0]}"])
 
-    current_directory = os.getcwd()
-    
-    if current_directory not in sys.path:
-        sys.path.insert(0, current_directory)
+    project_root = os.path.dirname(os.path.abspath(__file__))
+
+    if (project_root not in os.environ.get("PYTHONPATH", "").split(os.pathsep)):
+        os.environ["PYTHONPATH"] = project_root + os.pathsep + os.environ.get("PYTHONPATH", "")
         print("Adding project to PYTHONPATH")
 
     # run circuits
