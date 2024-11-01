@@ -20,7 +20,9 @@ bool get_any_qubits(circuit_info& info, int n, std::vector<Resource>& chosen_res
 		while((int)chosen_resources.size() != n){
 			r = info.choose_random_resource(true);
 
-			if(debug) std::cout << "chosen r " << r->str << std::endl;
+			#ifdef DEV
+				std::cout << "chosen r " << r->str << std::endl;
+			#endif
 		
 			if(!r->used){
 				r->used = true;
@@ -52,7 +54,9 @@ bool get_n_similar_qubits(circuit_info& info, int n, std::vector<Resource>& chos
 
 	chosen_resources.push_back(*r);
 
-	if(debug) std::cout << "first " << r->str << std::endl;
+	#ifdef DEV
+		std::cout << "first " << r->str << std::endl;
+	#endif
 
 	// check if first random resource was index, if so, make sure you have enough initial qubits to satisfy n
 	if(r->rt == index){
@@ -94,7 +98,9 @@ void get_particular_qubits(circuit_info& info, int n, std::vector<Resource>& cho
 	while((int)chosen_resources.size() != n){
 		r = info.choose_random_resource(true);
 
-		if(debug) std::cout << "next " << r->str << std::endl;
+		#ifdef DEV
+			std::cout << "next " << r->str << std::endl;
+		#endif
 
 		if(!r->used && (r->rt == rt)){
 			r->used = true;
@@ -112,7 +118,9 @@ void write_gate(std::ofstream& stream, circuit_info& info, Gate& g, std::string 
 	
 	stream << special_modifications + special_options;
 
-	if(debug) std::cout << g;
+	#ifdef DEV
+		std::cout << g;
+	#endif
 
 	info.n_control_gates_added += g.num_of_control_gates;
 	info.n_total_gates_added += g.num_of_gates;

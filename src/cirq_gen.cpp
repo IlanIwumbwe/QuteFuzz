@@ -102,11 +102,17 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 				new_qubit->get_concurrencies(old_qubit);
 			}
 		
-		} else if (debug){
+		} 
+		
+		#ifdef DEV
 			std::cout << "Could not find any replacement qubits" << std::endl;
-		}
+		#endif
 
-	} else if (debug){std::cout << "Chose not to add qubit mapping" << std::endl;}
+	}
+		
+	#ifdef DEV
+		std::cout << "Chose not to add qubit mapping" << std::endl;
+	#endif
 	
 }
 
@@ -138,7 +144,9 @@ int cirq::apply_gate(std::ofstream& stream, circuit_info& info, Gate& g){
 			special_modifications = ".with_classical_controls(\'cbit" + std::to_string(cirq_measures++) + "\')";
 		}
 
-		if(debug) std::cout << g;
+		#ifdef DEV 
+			std::cout << g; 
+		#endif
 
 		if(g.type & circbox){
 			transfer_concurrencies(info, g);
@@ -230,9 +238,10 @@ void cirq::write_circuit(std::ofstream& stream, circuit_info& info){
 
 	apply_gates(stream, info);
 
-    if(debug) std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
-
-	if(debug) std::cout << info << std::endl;
+	#ifdef DEV
+		std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
+		std::cout << info << std::endl;
+	#endif
 }
 
 void cirq::generate_circuits(int n){
@@ -245,7 +254,11 @@ void cirq::generate_circuits(int n){
 	Circuit_Restrictions cr{"Cirq Gateset", cirq_flags};
 
 	for(int i = 0; i < n; ++i){
-		if(debug) std::cout << "================== circuit" << i+1 << ".py =========================\n" << std::endl;
+
+		#ifdef DEV
+			std::cout << "================== circuit" << i+1 << ".py =========================\n" << std::endl;
+		#endif
+
 		circuit_filename = CIRCUITS_DIR / ("circuit" + std::to_string(i+1) + ".py");
 	
 		std::ofstream stream(circuit_filename.c_str());

@@ -43,38 +43,23 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 
 ## Running the fuzzer
 
-### Set up a docker environment
+**Install python dependencies**
+```sh
+pip install -r requirements.txt
+```
 
-If you already have a Linux environment, skip to step 6
+**Generate and run circuits**
+```sh
+python run.py
+```
 
-1. You need to install docker on your system. Follow these [installation steps](https://docs.docker.com/get-started/get-docker/) to do so.
-2. Clone this repository
-3. Navigate into the repository, and setup a docker image using:
-    ``` sh
-    docker build -t qutefuzz .
-    ```
-4. Create and start a docker container based on the image using: 
-    ```sh 
-    docker run -v ./quantum_circuits:/qutefuzz/quantum_circuits -it --rm qutefuzz
-    ``` 
-    This should open up a terminal through which you will be able to interact with the container.
-5. Activate the python virtual environment using:
-    ```sh
-    source .qutefuzz/bin/activate
-    ```
-6. Install python dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-### Generate and run circuits
-
-- Use `source run.sh` to generate and run circuits. To see all available flags, use `./run.sh -h`.
+- To see all available flags, use `python run.py -h`.
 - You can run the generator on its own by compiling using `make`. Generate n circuits using:
     ```sh
     ./gen -n {n}
     ```
-- Full usage: `./gen -n {programs to generate} [-q/-p/-c] [-d]`
+- Full usage: `./gen -n {programs to generate} [-q/-p/-c]`
+- If you want to monitor the generation steps more closely, you can compile with `DEV` flag by running `make DEV=1`
 
 All quantum circuits, logs and results will be shown in a `quantum_circuits` folder in the repo directory
 

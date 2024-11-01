@@ -215,9 +215,7 @@ def run_routing_simulation(qc : QuantumCircuit, circuit_number : int):
         c = preprocess_counts(c)
         
         ks_vals.append(ks_test(counts_unrestricted, c, 1024))
-        
-        # Uncomment for debugging
-        # print(dict(sorted(c.items())))
+
 
         if(plot): 
             plot_qiskit_dist(c, circuit_number)

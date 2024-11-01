@@ -2,7 +2,7 @@
 #include "../headers/generator.h"
 
 void usage(){
-	std::cout << "Usage ./gen -n {programs to generate} [-q/-p/-c] [-d]" << std::endl;
+	std::cout << "Usage ./gen -n {programs to generate} [-q/-p/-c]" << std::endl;
 }
 
 int get_files_to_generate(char* argv[]){
@@ -22,22 +22,6 @@ int main(int argc, char* argv[]) {
 	int files_to_generate = 0;
 	
 	switch(argc){
-		case 5:
-			if(((std::string)argv[1] == "-n") && ((std::string)argv[4] == "-d")){
-				files_to_generate = get_files_to_generate(argv);
-				debug = true;
-				
-				if((std::string)argv[3] == "-q"){
-					f = f_qiskit;
-				} else if ((std::string)argv[3] == "-c"){
-					f = f_cirq;
-				}
-
-				generate(files_to_generate);
-			}
-
-			break;
-		
 		case 4:
 			if(((std::string)argv[1] == "-n")){
 				files_to_generate = get_files_to_generate(argv);
@@ -46,9 +30,7 @@ int main(int argc, char* argv[]) {
 					f = f_qiskit;
 				} else if ((std::string)argv[3] == "-c"){
 					f = f_cirq;
-				} else if ((std::string)argv[3] == "-d"){
-					debug = true;
-				} 
+				}
 
 				generate(files_to_generate);
 			}

@@ -122,14 +122,18 @@ void pytket::write_circuit(std::ofstream& stream, circuit_info& info){
 
 	apply_gates(stream, info);
 
-	if(debug) std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
+	#ifdef DEV
+		std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
+	#endif
 
 	if((info.circ_kind == main_circ)){
 		info.write_param_bindings(stream);
 		stream << info.name << ".symbol_substitution(bindings)\n";
 	}
 
-	if(debug) std::cout << info << std::endl;
+	#ifdef DEV
+		std::cout << info << std::endl;
+	#endif
 }
 
 void pytket::apply_gates(std::ofstream& stream, circuit_info& info){
@@ -177,7 +181,10 @@ void pytket::generate_circuits(int n){
 	}
 
 	while(circuit_index < n){
-		if(debug) std::cout << "================== circuit" << circuit_index+1 << ".py =========================\n" << std::endl;
+
+		#ifdef DEV
+			std::cout << "================== circuit" << circuit_index+1 << ".py =========================\n" << std::endl;
+		#endif
 
 		circuit_filename = CIRCUITS_DIR / ("circuit" + std::to_string(circuit_index+1) + ".py");
 	

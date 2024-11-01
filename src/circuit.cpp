@@ -40,10 +40,14 @@ void circuit_info::set_gateset_by_pass(){
 
     int two_q_gates = 0, pgates = 0;
 
-    if(debug) std::cout << "SWARM gateset; initial: " << init_size << " swarm size: " << gateset.size() << std::endl;
+    #ifdef DEV 
+        std::cout << "SWARM gateset; initial: " << init_size << " swarm size: " << gateset.size() << std::endl;
+    #endif
 
     for(Gate g : gateset){
-        if(debug) std::cout << g;
+        #ifdef DEV
+            std::cout << g;
+        #endif
         
         if(g.type & two_qubit_gate){
             two_q_gates += 1;
@@ -55,7 +59,9 @@ void circuit_info::set_gateset_by_pass(){
         }
     }
 
-    if(debug) std::cout << "====================== END OF SWARM GATESET ======================" << std::endl;
+    #ifdef DEV
+        std::cout << "====================== END OF SWARM GATESET ======================" << std::endl;
+    #endif
 
     ULL type_to_get;
 
