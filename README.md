@@ -53,6 +53,8 @@ pip install -r requirements.txt
 python run.py
 ```
 
+This generates and runs a Pytket circuit by default
+
 - To see all available flags, use `python run.py -h`.
 - You can run the generator on its own by compiling using `make`. Generate n circuits using:
     ```sh
