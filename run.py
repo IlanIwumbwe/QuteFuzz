@@ -40,12 +40,11 @@ def main() -> None:
     setup_dir()
 
     # vars passed to python circuits for verbose results and plotting
-    verbose = ""
-    plot = ""
+    verbose = "-v" if (args.v) else ""
+    plot = "-p" if (args.p) else ""
 
-    if(args.p and not os.path.exists(PLOTS_DIR)):
+    if(not os.path.exists(PLOTS_DIR) and args.p):
         os.mkdir(PLOTS_DIR)
-        plot = "-p"
 
     # compile the generate
     subprocess.run("make")
@@ -57,23 +56,7 @@ def main() -> None:
 
     assert(os.path.exists(exe))
 
-    if(args.v):
-        verbose = "-v"
-        log_path = os.path.join(QC_DIR, "log.txt")
-        print(log_path)
-
-        with open(log_path, "a") as f:
-            result = subprocess.run(
-                [exe, "-n", args.num_of_programs, f"-{args.frontend[0]}", "-d"],
-                stdout=f,
-                stderr=subprocess.STDOUT,
-                check=True
-            )
-
-            assert(result.returncode == 0)
-
-    else:
-        subprocess.run(["./gen", "-n", args.num_of_programs, f"-{args.frontend[0]}"])
+    subprocess.run([exe, "-n", args.num_of_programs, f"-{args.frontend[0]}"])
 
     current_directory = os.getcwd()
     if current_directory not in sys.path:
@@ -83,7 +66,7 @@ def main() -> None:
     # run circuits
     print("Running cirucits ....")
     for i, file in enumerate(sorted(os.listdir(QC_DIR))):
-        if (file.split(".")[1] == "py"):
+        if (os.path.isfile(file) and (file.split(".")[1] == "py")):
             path = os.path.join(QC_DIR, file)
             
             progress_bar(i+1, int(args.num_of_programs))
@@ -91,15 +74,16 @@ def main() -> None:
             log_path = os.path.join(QC_DIR, "_results.txt")
 
             with open(log_path, "a") as f:
-            
-                result = subprocess.run(
-                    ["python", "-Wi", path, verbose, plot],
-                    stdout=f,
-                    stderr=subprocess.STDOUT,
-                    check=True
-                )
-
-                assert(result.returncode == 0)
+                
+                try:
+                    subprocess.run(
+                        ["python", "-Wi", path, verbose, plot],
+                        stdout=f,
+                        stderr=subprocess.STDOUT,
+                        check=True
+                    )
+                except Exception as e:
+                    print(f"\nERROR '{e}' occured while running circuits, check", log_path, "for details")
 
     print()
 

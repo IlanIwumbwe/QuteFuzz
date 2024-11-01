@@ -1,5 +1,6 @@
 src/*.o
 gen
+gen.exe
 .vscode
 quantum_circuits
 log.txt
