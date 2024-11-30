@@ -60,12 +60,6 @@ def main() -> int:
 
     subprocess.run([exe, "-n", args.n, f"-{args.f[0]}"])
 
-    project_root = os.path.dirname(os.path.abspath(__file__))
-
-    if (project_root not in os.environ.get("PYTHONPATH", "").split(os.pathsep)):
-        os.environ["PYTHONPATH"] = project_root + os.pathsep + os.environ.get("PYTHONPATH", "")
-        print("Adding project to PYTHONPATH")
-
     # run circuits
     print("Running cirucits ....")
     for i, file in enumerate(sorted(os.listdir(QC_DIR))):

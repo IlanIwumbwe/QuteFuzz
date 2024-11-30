@@ -47,6 +47,7 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 ```sh
 pip install -r requirements.txt
 ```
+This installs all the helper functions we use for differential testing as well as all other dependencies required to run the circuits such as qiskit, pytket and cirq libraries.
 
 **Generate and run circuits**
 ```sh
