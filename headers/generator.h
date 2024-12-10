@@ -7,8 +7,20 @@
 #include <unordered_map>
 #include <optional>
 #include "../headers/circuit.h"
+#include "../headers/circuit_restrictions.h"
 
 namespace pytket {
+
+	struct paulis{
+		static const int DEFINED_PAULIS = 4;
+		std::string array[DEFINED_PAULIS];
+
+		std::string get_random_pauli(){
+			return array[get_rand(0, DEFINED_PAULIS-1)];
+		}
+	};
+
+	extern std::vector<Circuit_Restrictions> all_passes;
 
 	void write_imports(std::ofstream& stream, unsigned int restriction);
 
@@ -28,6 +40,9 @@ namespace pytket {
 };
 
 namespace qiskit {
+	extern std::vector<std::string> all_passes;
+	const int MAX_NEST_STATEMENTS = 10;
+	const int MAX_NEST_DEPTH = 4;
 
 	void write_imports(std::ofstream& stream);
 
@@ -55,7 +70,12 @@ namespace qiskit {
 };
 
 namespace cirq {
-	extern int cirq_measures;
+	extern int measures;
+	extern std::vector<std::string> all_passes;
+	extern std::vector<std::string> target_gatesets;
+	extern std::vector<std::string> insert_strats;
+
+	const int MAX_CIRCBOX_REPETITION = 3;
 
 	void write_imports(std::ofstream& stream, circuit_info& info);
 

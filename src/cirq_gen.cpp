@@ -1,6 +1,14 @@
 #include "../headers/generator.h"
 
-int cirq::cirq_measures = 0;
+int cirq::measures = 0;
+
+std::vector<std::string> cirq::all_passes = {"stratified_circuit","merge_single_qubit_gates_to_phased_x_and_z","merge_single_qubit_gates_to_phxz",
+    "merge_single_qubit_moments_to_phxz","merge_k_qubit_unitaries","expand_composite","eject_z", "eject_phased_paulis",
+    "add_dynamical_decoupling","drop_negligible_operations","drop_empty_moments","align_left", "align_right"};
+
+std::vector<std::string> cirq::target_gatesets = {"cz(allow_partial=True)", "cz(allow_partial=False)", "sqrtiswap"};
+
+std::vector<std::string> cirq::insert_strats = {"InsertStrategy.NEW", "InsertStrategy.NEW_THEN_INLINE", "InsertStrategy.INLINE", "InsertStrategy.EARLIEST"};
 
 void cirq::write_imports(std::ofstream& stream, circuit_info& info){
 
@@ -44,7 +52,7 @@ void cirq::add_measure(std::ofstream& stream, circuit_info& info){
 	Resource* qr = info.choose_random_resource(true);
 
 	// make a mid circuit measurement of a qubit into this bit
-	stream << info.indent << info.name << ".append(measure(" << qr->str << ", key=\"cbit" << std::to_string(cirq_measures) << "\"))" << std::endl;
+	stream << info.tab << info.name << ".append(measure(" << qr->str << ", key=\"cbit" << std::to_string(measures) << "\"))" << std::endl;
 }
 
 /// @brief Given a gate `g` (subroutine), and a set of available qubits, replace one of the qubits used within the subroutine with another qubit.
@@ -133,7 +141,7 @@ void cirq::transfer_concurrencies(circuit_info& info, Gate& g){
 
 int cirq::apply_gate(std::ofstream& stream, circuit_info& info, Gate& g){
 
-	int n_repeat = (g.type & circbox) ? get_rand(1, MAX_CIRCBOX_REPETITION_CIRC) : 1;
+	int n_repeat = (g.type & circbox) ? get_rand(1, MAX_CIRCBOX_REPETITION) : 1;
 
 	if(info.n_total_gates_added + (n_repeat * g.num_of_gates) <= info.n_gates_to_add){
 		// decide whether this circuit should be a conditional
@@ -141,7 +149,7 @@ int cirq::apply_gate(std::ofstream& stream, circuit_info& info, Gate& g){
 		
 		if((get_rand(1, 10) == 1) && (info.circ_kind != subroutine)) {
 			add_measure(stream, info);
-			special_modifications = ".with_classical_controls(\'cbit" + std::to_string(cirq_measures++) + "\')";
+			special_modifications = ".with_classical_controls(\'cbit" + std::to_string(measures++) + "\')";
 		}
 
 		#ifdef DEV 
@@ -154,7 +162,7 @@ int cirq::apply_gate(std::ofstream& stream, circuit_info& info, Gate& g){
 			info.n_control_gates_added += (n_repeat * g.num_of_control_gates);
 			info.n_total_gates_added += (n_repeat * g.num_of_gates);
 
-			stream << info.indent + info.name + ".append(" + g.name << ".repeat(" << n_repeat << ")";
+			stream << info.tab + info.name + ".append(" + g.name << ".repeat(" << n_repeat << ")";
 
 			write_qubit_replacement(stream, info, g);	
 
@@ -162,7 +170,7 @@ int cirq::apply_gate(std::ofstream& stream, circuit_info& info, Gate& g){
 
 		} else if (get_any_qubits(info, g.num_of_resources, g.resources_used)){
 
-			std::string insert_strat = cirq_insert_strats[get_rand(0, cirq_insert_strats.size()-1)];
+			std::string insert_strat = insert_strats[get_rand(0, insert_strats.size()-1)];
 		
 			write_gate(stream, info, g, ", strategy = " + insert_strat, special_modifications);
 
@@ -183,7 +191,7 @@ void cirq::apply_gates(std::ofstream& stream, circuit_info& info){
 		apply_gate(stream, info, *gate);
 	}
 
-	info.unindent_one_level();
+	info.unindent();
 }
 
 void cirq::write_circboxes(std::ofstream& stream, circuit_info& info){
@@ -239,7 +247,6 @@ void cirq::write_circuit(std::ofstream& stream, circuit_info& info){
 	apply_gates(stream, info);
 
 	#ifdef DEV
-		std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
 		std::cout << info << std::endl;
 	#endif
 }
@@ -283,13 +290,13 @@ void cirq::generate_circuits(int n){
 		stream << "main_circ.append(measure(qubits, key=\"results\"))" << std::endl;
 
 		if (get_rand(0, 1)) {
-			stream << "individual_pass(" << global_info.name << ", " << i+1 << ", \"" << cirq_all_passes[i%(int)cirq_all_passes.size()] << "\")" << std::endl;
+			stream << "individual_pass(" << global_info.name << ", " << i+1 << ", \"" << all_passes[i%(int)all_passes.size()] << "\")" << std::endl;
 		} else {
-			stream << "compare_circuits(" << global_info.name << ", \"" << cirq_target_gatesets[i%cirq_target_gatesets.size()] << "\","<< i+1 << ")" << std::endl;
+			stream << "compare_circuits(" << global_info.name << ", \"" << target_gatesets[i%target_gatesets.size()] << "\","<< i+1 << ")" << std::endl;
 		}
 
 		//Resets name every different circuit
-		cirq_measures = 0;
+		measures = 0;
 		stream.close();
 	}
 }

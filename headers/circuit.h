@@ -4,11 +4,9 @@
 #include <string>
 #include "gate.h"
 #include "resource.h"
+#include "circuit_restrictions.h"
 
-typedef enum {
-	subroutine,
-	main_circ
-} circuit_kind;
+extern std::vector<Gate> ALL_SUPPORTED_GATES;
 
 struct circuit_info{
 	std::string name;
@@ -46,8 +44,8 @@ struct circuit_info{
 	/// @brief Gateset used to generate a circuit/subcircuit
 	std::vector<Gate> gateset;
 
-	std::string indent = "";
-	int nest_depth =  ((f == f_qiskit) && get_rand(0,1)) ? get_rand(1, MAX_NEST_DEPTH) : 0;
+	std::string tab = "";
+	int nest_depth = 0; // no nesting for pytket and cirq, qiskit sets this variable 
 
 	circuit_info(){}
 
@@ -74,7 +72,7 @@ struct circuit_info{
 		gateset = g;
 
 		n_init_qubits = 0;
-		n_named_qubits = MAX_ADDED_CIRCBOX_QUBITS;
+		n_named_qubits = MIN_TOTAL_QUBITS;
 		n_gates_to_add = get_rand(MIN_CIRCBOX_GATES, MAX_CIRCBOX_GATES);
 	}
 
@@ -101,10 +99,6 @@ struct circuit_info{
 			r.used = false;
 			r.bad_choice_for_replacement = false;
 		}
-	}
-
-	void reset_choices_flags(){
-
 	}
 
 	void reset_state(){
@@ -150,15 +144,18 @@ struct circuit_info{
 
 	void set_multiplexor_ops(ULL type_to_get);
 
-	void indent_one_level(){
-		indent += "\t";
+	/// @brief Indent by one level
+	void indent(){
+		tab += "\t";
 	}
 
-	void unindent_one_level(){
-		if(indent.length()){indent.pop_back();}
+	/// @brief Unindent by one level
+	void unindent(){
+		if(tab.length()){tab.pop_back();}
 	}
 
 };
 
+std::vector<Gate> get_subset_of_gateset(std::vector<Gate> vec, float ratio);
 
 #endif

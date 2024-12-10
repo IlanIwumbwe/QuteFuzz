@@ -1,6 +1,34 @@
 
 #include "../headers/generator.h"
 
+pytket::paulis pauli_gates = {.array = {"X", "Y", "Z", "I"}};
+
+std::vector<Circuit_Restrictions> pytket::all_passes = {Circuit_Restrictions{"AutoRebase", primitive | tk1 | tk2 | two_qubit_gate | clifford | rotation | phased, no_circbox | no_paulibox | no_mult}, 
+	Circuit_Restrictions{"CliffordResynthesis", two_qubit_gate | clifford,  no_circbox | no_paulibox}, 
+	Circuit_Restrictions{"CliffordPushThroughMeasures", clifford},
+	Circuit_Restrictions{"CnXPairwiseDecomposition", two_qubit_gate | primitive}, 
+	Circuit_Restrictions{"CommuteThroughMultis", two_qubit_gate | primitive | clifford | rotation},
+	Circuit_Restrictions{"ComposePhasePolyBoxes", primitive | tk1 | tk2 | two_qubit_gate | clifford | rotation, no_circbox | no_mult | no_paulibox | no_named_qubits},
+	Circuit_Restrictions{"ContextSimp", primitive | tk1 | tk2 | two_qubit_gate | clifford | rotation},
+	Circuit_Restrictions{"DecomposeArbitrarilyControlledGates", primitive | two_qubit_gate, no_mult | no_circbox | no_paulibox},
+	Circuit_Restrictions{"DecomposeSingleQubitsTK1", primitive | tk1 | tk2 | clifford | rotation},
+	// Circuit_Restrictions{"DecomposeTK2", {basis, tk_gates}},  // need to apply NormaliseTK2 to normalise parameters
+	Circuit_Restrictions{"EulerAngleReduction", primitive | rotation},
+	Circuit_Restrictions{"FullPeepholeOptimise", primitive | rotation, no_paulibox | no_circbox | no_mult},
+	// Circuit_Restrictions{"GlobalisePhasedX", primitive | phased},
+	Circuit_Restrictions{"KAKDecomposition", two_qubit_gate, no_circbox | no_paulibox | no_mult},
+	Circuit_Restrictions{"OptimisePhaseGadgets", phased,  no_circbox | no_paulibox},
+	Circuit_Restrictions{"PauliExponentials", two_qubit_gate | rotation | phased, no_circbox | no_mult},
+	Circuit_Restrictions{"PauliSimp", two_qubit_gate | rotation | phased, no_circbox | no_mult},
+	Circuit_Restrictions{"RemoveRedundancies", primitive | tk1 | tk2 | two_qubit_gate | clifford | rotation | phased},
+	Circuit_Restrictions{"SquashRzPhasedX", primitive | clifford | rotation},
+	Circuit_Restrictions{"SquashTK1", primitive | clifford | rotation},
+	Circuit_Restrictions{"SynthesiseTK", primitive | tk1 | tk2 | two_qubit_gate | clifford | rotation | phased, no_circbox | no_paulibox | no_mult},
+	Circuit_Restrictions{"SynthesiseTket", primitive | tk1 | tk2 | two_qubit_gate | clifford | rotation | phased, no_circbox | no_paulibox | no_mult},
+	Circuit_Restrictions{"ThreeQubitSquash", primitive | cx | rotation, no_paulibox | no_circbox | no_mult},
+	Circuit_Restrictions{"ZXGraphlikeOptimisation", cz | z | cx | x | noop | swap | rx | rz | h, no_paulibox | no_circbox | no_mult | no_bits | no_named_qubits},
+};
+
 void pytket::write_imports(std::ofstream& stream, unsigned int restriction){
 	stream << 
 	"from sympy import Symbol\n"
@@ -122,10 +150,6 @@ void pytket::write_circuit(std::ofstream& stream, circuit_info& info){
 
 	apply_gates(stream, info);
 
-	#ifdef DEV
-		std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
-	#endif
-
 	if((info.circ_kind == main_circ)){
 		info.write_param_bindings(stream);
 		stream << info.name << ".symbol_substitution(bindings)\n";
@@ -144,7 +168,7 @@ void pytket::apply_gates(std::ofstream& stream, circuit_info& info){
 		apply_gate(stream, info, *gate, get_n_similar_qubits);
 	}
 
-	info.unindent_one_level();
+	info.unindent();
 
 }
 
@@ -190,7 +214,7 @@ void pytket::generate_circuits(int n){
 	
 		std::ofstream stream(circuit_filename.c_str());
 
-		cr = &pytket_opt_passes[(circuit_index % pytket_opt_passes.size())];
+		cr = &all_passes[(circuit_index % all_passes.size())];
 
 		circuit_info global_info("main_circ", main_circ, cr);
 
@@ -205,7 +229,7 @@ void pytket::generate_circuits(int n){
 			global_info.n_init_qubits = total_qubits;
 			global_info.n_named_qubits = 0;
 		} else {
-			global_info.n_init_qubits = (get_rand(0, 1) ? 4 : total_qubits-4);
+			global_info.n_init_qubits = (get_rand(0, 1) ? MIN_TOTAL_QUBITS : total_qubits-MIN_TOTAL_QUBITS);
 			global_info.n_named_qubits = total_qubits - global_info.n_init_qubits;
 		}
 
@@ -296,7 +320,8 @@ void pytket::write_pauli_exp(std::ofstream& stream, circuit_info& info){
 	stream << "pauli_box = PauliExpBox((";
 
 	while(added_paulis < n_paulis){
-		pauli_name = paulis[get_rand(0, N_PAULIS-1)];
+		pauli_name = pauli_gates.get_random_pauli();
+
 		stream << "Pauli." << pauli_name << ", ";
 		added_paulis++;
 	}

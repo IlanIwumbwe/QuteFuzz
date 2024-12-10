@@ -24,9 +24,9 @@ struct Resource{
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, Resource& r){
-		os << r.str << " type: " << r.rt << " used flag: " << r.used << " total times used: " << r.times_used << " bad choice for replacement:" << r.bad_choice_for_replacement << std::endl;
-		os << "\tConcurrent resources of this resource: " << std::endl;
+		os << r.str << " type: " << r.rt << " used flag: " << r.used << " total times used: " << r.times_used << std::endl;
 
+		os << "Concurrent resources of this resource: " << std::endl;
 		for(Resource& other_r : r.concurrent_resources){
 			os << "\t" << other_r;
 		}

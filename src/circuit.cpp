@@ -36,11 +36,12 @@ void circuit_info::set_gateset_by_pass(){
         }
     }
 
-    gateset = get_r_of_vec(cr->gateset, 0.3);
+    gateset = get_subset_of_gateset(cr->gateset, 0.3);
 
     int two_q_gates = 0, pgates = 0;
 
     #ifdef DEV 
+        std::cout << "=====================================================" << std::endl;
         std::cout << "SWARM gateset; initial: " << init_size << " swarm size: " << gateset.size() << std::endl;
     #endif
 
@@ -60,7 +61,7 @@ void circuit_info::set_gateset_by_pass(){
     }
 
     #ifdef DEV
-        std::cout << "====================== END OF SWARM GATESET ======================" << std::endl;
+        std::cout << "=====================================================" << std::endl;
     #endif
 
     ULL type_to_get;

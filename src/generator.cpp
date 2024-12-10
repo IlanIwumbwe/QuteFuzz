@@ -111,7 +111,7 @@ void get_particular_qubits(circuit_info& info, int n, std::vector<Resource>& cho
 }
 
 void write_gate(std::ofstream& stream, circuit_info& info, Gate& g, std::string special_options, std::string special_modifications){
-	stream << info.indent + info.name + g.starter;
+	stream << info.tab + info.name + g.starter;
 
 	write_args(stream, info, g);
 	write_resources(stream, g);
@@ -200,7 +200,11 @@ void write_args(std::ofstream& stream, circuit_info& info, Gate& gate){
 	stream << gate.a_e;
 }
 
-std::vector<Gate> get_r_of_vec(std::vector<Gate> vec, float ratio){
+/// @brief Return a subset of the given gateset. Number of gates in the subset given as ratio of superset, gates are chosen randomly.  
+/// @param vec 
+/// @param ratio 
+/// @return 
+std::vector<Gate> get_subset_of_gateset(std::vector<Gate> vec, float ratio){
 	assert(vec.size() > 0);
 
 	size_t size = ratio * vec.size();
