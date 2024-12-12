@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include "../headers/generator.h"
 
 void usage(){
@@ -20,7 +19,7 @@ int get_files_to_generate(char* argv[]){
 
 int main(int argc, char* argv[]) {
 	int files_to_generate = 0;
-	
+
 	switch(argc){
 		case 4:
 			if(((std::string)argv[1] == "-n")){

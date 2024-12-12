@@ -14,19 +14,18 @@
 
 #define get_lsb(number) __builtin_ctzll(number)
 
-// constants 
 const int SUPPORTED_FRONTENDS = 3;
 
 /// minimum should be at least 4 because generator supports some gates that use 4 qubits, and they could be the only gates in the circuit's gateset
 const int MIN_TOTAL_QUBITS = 4; 
-const int MAX_TOTAL_QUBITS = 50;
-const int MIN_TOTAL_GATES = 70;
-const int MAX_TOTAL_GATES = 150;
+const int MAX_TOTAL_QUBITS = 6;
+const int MIN_TOTAL_GATES = 40;
+const int MAX_TOTAL_GATES = 60;
 
 const int MIN_CIRCBOX_GATES = 4;
 const int MAX_CIRCBOX_GATES = 6;
 const int MAX_CIRCBOX_CONTROL_QUBITS = 3;
-const int MAX_CIRCB0XES = 15;
+const int MAX_CIRCB0XES = 5;
 
 const int N_INIT_BITS = 2;
 const int N_NAMED_BITS = 2;
