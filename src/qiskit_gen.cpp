@@ -12,7 +12,7 @@ void qiskit::write_imports(std::ofstream& stream){
 
 	stream << "from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister" << std::endl;
 	stream << "from qiskit.circuit import Parameter, ParameterVector" << std::endl;
-	stream << "from helpers.qiskit_helpers import compare_statevectors, run_on_simulator, run_routing_simulation" << std::endl;
+	stream << "from helpers.qiskit_helpers import compare_statevectors, run_on_simulator, run_routing_simulation, run_pass_on_simulator" << std::endl;
 	stream << "from pathlib import Path" << std::endl; 
 	stream << "from math import pi" << std::endl;
 
@@ -312,11 +312,18 @@ void qiskit::generate_circuits(int n){
 
 		if(global_info.nest_depth){	
 			stream << global_info.name << ".measure_active()" << std::endl;
-			stream << "run_on_simulator(main_circ, " << i+1 << ")" << std::endl;
+
+			// choose whether to apply a single pass or optimisation levels
+			if(get_rand(0, 1)){
+				stream << "run_on_simulator(main_circ, \"" << i+1 << "\")" << std::endl;
+			} else {
+				stream << "run_pass_on_simulator(main_circ, \"" << i+1 << "\", \"" << all_passes[passes_circuits++ % all_passes.size()] << "\")" << std::endl;
+			}
+			
 		} else{
-			if (get_rand(0, 1)) {	//Randomly choose whether to do a optimisation pass or a routing pass
-				stream << "compare_statevectors(" << global_info.name << ", \"" << all_passes[passes_circuits%all_passes.size()] << "\")" << std::endl;
-				passes_circuits++;
+			//Randomly choose whether to do a optimisation pass or a routing pass
+			if (get_rand(0, 1)) {	
+				stream << "compare_statevectors(" << global_info.name << ", \"" << all_passes[passes_circuits++ % all_passes.size()] << "\")" << std::endl;
 			}
 			else {
 				stream << global_info.name << ".measure_active()" << std::endl;

@@ -64,15 +64,15 @@ def read_circ_args() -> Tuple[bool, bool]:
 
 	return verbose, plot
 
-def plot_cirq_dist(c_orig, c_new, circ_num : int) -> None:
+def plot_cirq_dist(c_orig, c_new, circ_num : str) -> None:
 	"""
 		Plot distributions of results for original vs optimised circuit
 	"""
 	
 	plots_path.mkdir(exist_ok=True)
 
-	filename_orig = plots_path / ("Circ"+str(circ_num)+"_Original")
-	filename_new = plots_path / ("Circ"+str(circ_num)+"_New")
+	filename_orig = plots_path / ("Circ"+circ_num+"_Original")
+	filename_new = plots_path / ("Circ"+circ_num+"_New")
 
 	plot_state_histogram(c_orig, plt.subplot())
 	plt.savefig(filename_orig)
@@ -81,7 +81,11 @@ def plot_cirq_dist(c_orig, c_new, circ_num : int) -> None:
 	plt.savefig(filename_new)
 	plt.close()
 
-def compare_circuits(circ : Circuit, gs : str, circ_num : int):
+def compare_circuits_after_gateset_optimisation(circ : Circuit, gs : str, circ_num : str):
+	"""
+		Optimise the circuit to a given target gateset and run it. Compare results using ks_test  before and after optimisation
+	"""
+
 	simulator = Simulator()
 	context = TransformerContext(tags_to_ignore=("nocompile",), deep=True, logger=TransformerLogger())
 	target_gateset = target_gatesets[gs]
@@ -93,12 +97,17 @@ def compare_circuits(circ : Circuit, gs : str, circ_num : int):
 	c_orig = simulator.run(circ, repetitions=shots).histogram(key="results")
 	c_new = simulator.run(circ_new, repetitions=shots).histogram(key='results')
 
+	print("Optimising circuit for target gateset, running on simulator")
+	print("KS values:")
 	print(ks_test(c_orig, c_new, shots), "\n")
 
 	if(plot): 
 		plot_cirq_dist(c_orig, c_new, circ_num)
 
-def individual_pass(circ : Circuit, circ_num : int, pass_to_do : str):
+def individual_pass(circ : Circuit, circ_num : str, pass_to_do : str):
+	"""
+		Apply the given pass on the ciruit, run it on a simulator, compare results before and after pass application
+	"""
 	simulator = Simulator()
 	shots = 1024
 
@@ -112,6 +121,8 @@ def individual_pass(circ : Circuit, circ_num : int, pass_to_do : str):
 	c_orig = simulator.run(circ, repetitions=shots).histogram(key="results")
 	c_new = simulator.run(circ_new, repetitions=shots).histogram(key='results')
 
+	print("Applying single pass on circuit, running on simulator")
+	print("KS values:")
 	print(ks_test(c_orig, c_new, shots), "\n")
 
 	if(plot): 

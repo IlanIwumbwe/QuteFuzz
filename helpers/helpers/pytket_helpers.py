@@ -28,15 +28,18 @@ def test_circuit_on_passes(main_circ : Circuit, test_pass : str) -> None:
 		pass_statevector = main_circ.get_statevector()
 		
 		if np.round(abs(np.vdot(no_pass_statevector, pass_statevector)), 6)==1:
-			print("Statevector are equivalent\n")
+			print("Statevectors are the same\n")
 		else:
-			print ("Failed, statevector not the same")
-			if (verbose): print("Dot product value: ", np.round(abs(np.vdot(no_pass_statevector, pass_statevector)), 6))
+			print ("Statevectors not the same")
+			if (verbose): print("Dot product: ", np.round(abs(np.vdot(no_pass_statevector, pass_statevector)), 6))
 
 	except Exception:
 		print("Exception :", traceback.format_exc())
 
 def read_circ_args() -> Tuple[bool, bool]:
+	"""
+		Read args passed before running the circuit
+	"""
 	args : List[str] = sys.argv
 	verbose : bool = False
 	plot : bool = False

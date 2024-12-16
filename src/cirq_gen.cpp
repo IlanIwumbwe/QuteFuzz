@@ -22,7 +22,7 @@ void cirq::write_imports(std::ofstream& stream, circuit_info& info){
 
     stream << "\n\tNamedQubit, InsertStrategy, CircuitOperation, measure)" << std::endl;
     stream << "from pathlib import Path" << std::endl;
-	stream << "from helpers.cirq_helpers import compare_circuits, individual_pass" << std::endl;
+	stream << "from helpers.cirq_helpers import compare_circuits_after_gateset_optimisation, individual_pass" << std::endl;
 	stream << "\n";
 }
 
@@ -290,9 +290,9 @@ void cirq::generate_circuits(int n){
 		stream << "main_circ.append(measure(qubits, key=\"results\"))" << std::endl;
 
 		if (get_rand(0, 1)) {
-			stream << "individual_pass(" << global_info.name << ", " << i+1 << ", \"" << all_passes[i%(int)all_passes.size()] << "\")" << std::endl;
+			stream << "individual_pass(" << global_info.name << ", \"" << i+1 << "\", \"" << all_passes[i%(int)all_passes.size()] << "\")" << std::endl;
 		} else {
-			stream << "compare_circuits(" << global_info.name << ", \"" << target_gatesets[i%target_gatesets.size()] << "\","<< i+1 << ")" << std::endl;
+			stream << "compare_circuits_after_gateset_optimisation(" << global_info.name << ", \"" << target_gatesets[i%target_gatesets.size()] << "\",\"" << i+1 << "\")" << std::endl;
 		}
 
 		//Resets name every different circuit

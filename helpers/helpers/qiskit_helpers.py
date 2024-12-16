@@ -31,10 +31,10 @@ opt_passes = {  "Optimize1qGates": Optimize1qGates(), "Optimize1qGatesDecomposit
                 "NormalizeRXAngle":NormalizeRXAngle(),"OptimizeAnnotated":OptimizeAnnotated()
             }
 
-'''
-Helper functions
-'''
 def generate_custom_mapping(num_qubits : int) -> List[List]:
+    '''
+        Generate a custom qubut connectivity graph based on total number of qubits. Used to test routing
+    '''
     # This is an array holding the generated map
     map = []
 
@@ -56,7 +56,13 @@ def generate_custom_mapping(num_qubits : int) -> List[List]:
     
     return map
 
+
+
 def read_circ_args() -> Tuple[bool, bool]:
+	"""
+		Read arguments passed to circuit before it is run
+    """
+
 	args : List[str] = sys.argv
 	verbose : bool = False
 	plot : bool = False
@@ -73,24 +79,28 @@ def read_circ_args() -> Tuple[bool, bool]:
 	return verbose, plot
 
 def simulate_circuit(qc : QuantumCircuit):
+    """
+    	Evolve statevector in intial 0 state based on quantum circuit
+	"""
     state = Statevector.from_int(0, 2**qc.num_qubits)
 
     state = state.evolve(qc)
 
     return state
 
-def preprocess_counts(counts :  Counter[Tuple[str, ...], int]) -> Counter[Tuple[int, ...], int]:
+def preprocess_counts(counts :  Counter[Tuple[str, ...], int]) -> Counter[int, int]:
 	'''
-		Convert into the correct output type 
+		Given a dict mapping binary values to number of times they appear, return a sorted dict with each binary tuple converted into a base 10 int
 	'''
 	out : Counter[Tuple[int, ...], int] = {}
 
 	for k in counts.keys():
-		out[tuple([int(i) for i in k.replace(' ','')])] = counts[k]
+		out[int(k.replace(' ', ''), 2)] = counts[k]
+          
+	return dict(sorted(out.items()))
 
-	return out
 
-def ks_test(counts1 : Counter[Tuple[int, ...], int], counts2 : Counter[Tuple[int, ...], int], total_shots : int) -> float:
+def ks_test(counts1 : Counter[int, int], counts2 : Counter[int, int], total_shots : int) -> float:
 	'''
 	Carries out K-S test on two frequency lists
 	'''
@@ -100,34 +110,32 @@ def ks_test(counts1 : Counter[Tuple[int, ...], int], counts2 : Counter[Tuple[int
 		num1, num2 = 0, 0
 
 		if(p1):
-			for i in range(len(p1[0])): num1 += (p1[0][i] * (2**(len(p1[0]) - i)))
-			sample1 += p1[1] * [num1]
+			#for i in range(len(p1[0])): num1 += (p1[0][i] * (2**(len(p1[0]) - i)))
+			sample1 += p1[1] * [p1[0]]
 		
 		if(p2):
-			for i in range(len(p2[0])): num2 += (p2[0][i] * (2**(len(p2[0]) - i)))
-			sample2 += p2[1] * [num2]
+			#for i in range(len(p2[0])): num2 += (p2[0][i] * (2**(len(p2[0]) - i)))
+			sample2 += p2[1] * [p2[0]]
 
 	assert (len(sample1) == total_shots) and (len(sample2) == total_shots), "Sample size does not match number of shots"
 
 	ks_stat, p_value = ks_2samp(sorted(sample1), sorted(sample2))
 
-
-	'''
-		Counter({(1, 1, 0, 0, 0): 25034, (1, 0, 0, 0, 0): 24966})
-		Counter({(1,0,0,0,0,):24500, (1,1,0,0,0,):25500})
-	'''
-
 	return p_value 
 
-'''
-Called functions
-'''
 def compare_statevectors(qc : QuantumCircuit, pass_to_do : str):
+    """
+		Run a specific pass on a circuit and compare statevectors before and after the pass is applied
+	"""
+
     # AllOpt stands for default transpiler passes
     if pass_to_do == "AllOpt":
         # Need to set the seed for consistent transpiler pass results across optimisation levels
         options = {'layout_method': 'trivial', 'seed_transpiler': 1235, 'routing_method': 'stochastic', 'translation_method': 'translator'}
         sv0 = simulate_circuit(qc)
+
+        print("Applying optimisation levels on circuit, comparing statevectors")
+
         # Code for checking different levels of optimization levels and if they are the same
         for i in range(4):
             pass_manager = generate_preset_pass_manager(optimization_level=i, **options)
@@ -151,20 +159,24 @@ def compare_statevectors(qc : QuantumCircuit, pass_to_do : str):
 
         # Compare the circuit statevector before and after the pass
         if(np.isclose(1.0, abs(vdot(sv0, sv1)), rtol=0, atol=1e-8)):
-            print("Passed test!\n")
+            print("Statevectors are the same\n")
         else:
-            print("Failed test!")
+            print("Statevectors are the different")
             print("dot product is: ", abs(vdot(sv0, sv1)), "\n") 
 
-def plot_qiskit_dist(counts : Counter[Tuple[int, ...], int], circuit_number : int):
+def plot_qiskit_dist(counts : Counter[Tuple[int, ...], int], circuit_number : str):
     """
         Plot probability distribution of results based on counts after running circuit
     """
     plots_path.mkdir(exist_ok=True)
-    filename = plots_path / ("circuit"+str(circuit_number)+".png")
+    filename = plots_path / ("circuit"+circuit_number+".png")
     plot_histogram(counts, figsize=[9,5], filename=filename)
 
-def run_on_simulator(qc : QuantumCircuit, circuit_number : int):
+def run_on_simulator(qc : QuantumCircuit, circuit_number : str):
+    """
+		Run circuit through optimisation levels 0, 1, 2, 3. 0 is the ground truth. Compare probability distribution of results after O1, O2, and O3 with O0.
+	"""
+
     # Lazy importing to speed up other circuits
     from qiskit_aer import AerSimulator
     s = AerSimulator()
@@ -186,11 +198,41 @@ def run_on_simulator(qc : QuantumCircuit, circuit_number : int):
         c = s.run(qcT, shots=1024).result().get_counts()
         c = preprocess_counts(c)
 
-        ks_vals.append(ks_test(c1, c, 1024))
-    
-    print(ks_vals, "\n")
+        if(plot):
+            plot_qiskit_dist(c, circuit_number+"_"+str(i))
 
-def run_routing_simulation(qc : QuantumCircuit, circuit_number : int):
+        ks_vals.append(("o"+str(i), ks_test(c1, c, 1024)))
+    
+    print("Applying optimisation levels on circuit, running on simulator")
+    print("KS values:", ks_vals, "\n")
+
+def run_pass_on_simulator(qc : QuantumCircuit, circuit_number : str, pass_to_run : str):
+	"""
+		Apply a specific pass on a circuit and run it on a simulator to obtain a probability distribution
+    """
+     
+	from qiskit_aer import AerSimulator
+	s = AerSimulator()
+     
+	_, plot = read_circ_args()
+    
+	p = PassManager(opt_passes[pass_to_run])
+	pass_circ = p.run(qc)
+    
+	qc_original = transpile(qc, s, optimization_level=0)
+	qc_pass = transpile(pass_circ, s, optimization_level=0)
+
+	c1 = preprocess_counts(s.run(qc_original, shots=1024).result().get_counts())
+	c2 = preprocess_counts(s.run(qc_pass, shots=1024).result().get_counts())
+
+	if(plot):
+		plot_qiskit_dist(c1, circuit_number+"_original")
+		plot_qiskit_dist(c2, circuit_number+"_"+pass_to_run)
+	
+	print("Testing", pass_to_run, "on simulator")
+	print("KS value:", ks_test(c1,c2,1024), "\n")
+
+def run_routing_simulation(qc : QuantumCircuit, circuit_number : str):
     # Lazy importing of Backend
     from qiskit.providers.fake_provider import GenericBackendV2
     
@@ -206,7 +248,7 @@ def run_routing_simulation(qc : QuantumCircuit, circuit_number : int):
 
     map = generate_custom_mapping(qc.num_qubits)
     s_restricted = GenericBackendV2(num_qubits=qc.num_qubits, seed=1234, coupling_map=map, noise_info=False)
-    print("Testing custom routing map: ", map)
+    print("Testing custom routing map: ", map, "on simulator")
 
     ks_vals = []
     for i in range(0, 4):
@@ -214,12 +256,12 @@ def run_routing_simulation(qc : QuantumCircuit, circuit_number : int):
         c = s_restricted.run(qcT, shots=1024).result().get_counts()
         c = preprocess_counts(c)
         
-        ks_vals.append(ks_test(counts_unrestricted, c, 1024))
+        ks_vals.append(("o"+str(i), ks_test(counts_unrestricted, c, 1024)))
 
 
         if(plot): 
             plot_qiskit_dist(c, circuit_number)
 
     # Simply prints the ksvals for manual validation
-    print(ks_vals, "\n")
+    print("KS values:", ks_vals, "\n")
     
