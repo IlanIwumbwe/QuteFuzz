@@ -41,7 +41,7 @@ namespace pytket {
 
 namespace qiskit {
 	extern std::vector<std::string> all_passes;
-	const int MAX_NEST_STATEMENTS = 10;
+	const int MAX_NEST_STATEMENTS = 5;
 	const int MAX_NEST_DEPTH = 4;
 
 	void write_imports(std::ofstream& stream);
