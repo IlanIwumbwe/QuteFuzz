@@ -1,11 +1,18 @@
 
 #include "../headers/generator.h"
 
+std::vector<std::string> qiskit::all_passes = {"Optimize1qGates", "Optimize1qGatesDecomposition", "Collect1qRuns", "Collect2qBlocks",
+    "CollectMultiQBlocks","CollectLinearFunctions","CollectCliffords","ConsolidateBlocks","CXCancellation","InverseCancellation",
+    "CommutationAnalysis","CommutativeCancellation","CommutativeInverseCancellation","Optimize1qGatesSimpleCommutation","RemoveDiagonalGatesBeforeMeasure",
+    "RemoveResetInZeroState","RemoveFinalReset","HoareOptimizer","TemplateOptimization","ResetAfterMeasureSimplification",
+    "OptimizeCliffords","ElidePermutations","NormalizeRXAngle","OptimizeAnnotated", "AllOpt"
+};
+
 void qiskit::write_imports(std::ofstream& stream){
 
 	stream << "from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister" << std::endl;
 	stream << "from qiskit.circuit import Parameter, ParameterVector" << std::endl;
-	stream << "from helpers.qiskit_helpers import compare_statevectors, run_on_simulator, run_routing_simulation" << std::endl;
+	stream << "from helpers.qiskit_helpers import compare_statevectors, run_on_simulator, run_routing_simulation, run_pass_on_simulator" << std::endl;
 	stream << "from pathlib import Path" << std::endl; 
 	stream << "from math import pi" << std::endl;
 
@@ -82,11 +89,9 @@ void qiskit::write_circuit(std::ofstream& stream, circuit_info& info){
 		add_symbols(stream, info);
 	}
 
-	apply_gates(stream, info, info.n_gates_to_add, info.nest_depth);
+	info.nest_depth = get_rand(0, 1) ? get_rand(1, MAX_NEST_DEPTH) : 0;
 
-	#ifdef DEV
-		std::cout << "Actually applied " << info.n_total_gates_added << std::endl;
-	#endif
+	apply_gates(stream, info, info.n_gates_to_add, info.nest_depth);
 
 	if((info.circ_kind == main_circ)){
 		info.write_param_bindings(stream);	
@@ -138,7 +143,7 @@ int qiskit::apply_gates(std::ofstream& stream, circuit_info& info, int gates_to_
 		}
 	}
 
-	info.unindent_one_level();
+	info.unindent();
 	
 	#ifdef DEV
 		std::cout << "Added " << added_gates << " gates (including circbox gates)" << std::endl;
@@ -152,21 +157,21 @@ void qiskit::add_measure(std::ofstream& stream, circuit_info& info, Resource* br
 	Resource* qr = info.choose_random_resource(true);
 
 	// make a mid circuit measurement of a qubit into this bit
-	stream << info.indent << info.name << ".measure(" << qr->str << ", " << br->str << ")" << std::endl;
+	stream << info.tab << info.name << ".measure(" << qr->str << ", " << br->str << ")" << std::endl;
 }
 
 void qiskit::add_barrier(std::ofstream& stream, circuit_info& info){
 	Resource* qr = info.choose_random_resource(true);
 
 	// add a barrier on this qubit
-	stream << info.indent << info.name << ".barrier(" << qr->str << ")" << std::endl;
+	stream << info.tab << info.name << ".barrier(" << qr->str << ")" << std::endl;
 }
 
 void qiskit::add_noop(std::ofstream& stream, circuit_info& info){
 	Resource* qr = info.choose_random_resource(true);
 
 	// add a barrier on this qubit
-	stream << info.indent << info.name << ".id(" << qr->str << ")" << std::endl;
+	stream << info.tab << info.name << ".id(" << qr->str << ")" << std::endl;
 }
 
 int qiskit::write_if(std::ofstream& stream, circuit_info& info, int depth){
@@ -178,9 +183,9 @@ int qiskit::write_if(std::ofstream& stream, circuit_info& info, int depth){
 		
 		add_measure(stream, info, r);
 
-		stream << info.indent << "with " << info.name << ".if_test((" << r->str << ",0)):" << std::endl;
+		stream << info.tab << "with " << info.name << ".if_test((" << r->str << ",0)):" << std::endl;
 
-		info.indent_one_level();
+		info.indent();
 
 		return apply_gates(stream, info, get_rand(1, MAX_NEST_STATEMENTS), depth-1);
 	}
@@ -197,15 +202,15 @@ int qiskit::write_if_else(std::ofstream& stream, circuit_info& info, int depth){
 
 		int added_t = 0, added_f = 0;
 
-		stream << info.indent << "with " << info.name << ".if_test((" << r->str << ",0)) as else_" << depth << ":" << std::endl;
+		stream << info.tab << "with " << info.name << ".if_test((" << r->str << ",0)) as else_" << depth << ":" << std::endl;
 
-		info.indent_one_level();
+		info.indent();
 
 		added_t = apply_gates(stream, info, get_rand(1, MAX_NEST_STATEMENTS), depth-1);
 		
-		stream << info.indent << "with else_" << depth << ":" << std::endl;
+		stream << info.tab << "with else_" << depth << ":" << std::endl;
 
-		info.indent_one_level();
+		info.indent();
 
 		added_f = apply_gates(stream, info, get_rand(1, MAX_NEST_STATEMENTS), depth-1);
 
@@ -226,16 +231,16 @@ int qiskit::write_switch(std::ofstream& stream, circuit_info& info, int depth){
 
 		add_measure(stream, info, r);
 
-		stream << info.indent << "with " << info.name << ".switch(" << r->str << ") as case_" << depth << ":" << std::endl;
-		info.indent_one_level();
+		stream << info.tab << "with " << info.name << ".switch(" << r->str << ") as case_" << depth << ":" << std::endl;
+		info.indent();
 
 		for(int i = 0; i <= max_value; ++i){
-			stream << info.indent << "with case_" << depth << "(" << i << "):" << std::endl;
-			info.indent_one_level();
+			stream << info.tab << "with case_" << depth << "(" << i << "):" << std::endl;
+			info.indent();
 			added_gates += apply_gates(stream, info, 4, depth-1);
 		}
 
-		info.unindent_one_level();
+		info.unindent();
 
 		return added_gates;
 	}
@@ -292,7 +297,7 @@ void qiskit::generate_circuits(int n){
 
 		int total_qubits = get_rand(MIN_TOTAL_QUBITS, MAX_TOTAL_QUBITS);
 
-		global_info.n_init_qubits = (get_rand(0, 1) ? 4 : total_qubits-4);
+		global_info.n_init_qubits = (get_rand(0, 1) ? MIN_TOTAL_QUBITS : total_qubits-MIN_TOTAL_QUBITS);
 		global_info.n_named_qubits = total_qubits - global_info.n_init_qubits;
 		global_info.n_named_bits = N_NAMED_BITS;
 
@@ -307,11 +312,18 @@ void qiskit::generate_circuits(int n){
 
 		if(global_info.nest_depth){	
 			stream << global_info.name << ".measure_active()" << std::endl;
-			stream << "run_on_simulator(main_circ, " << i+1 << ")" << std::endl;
+
+			// choose whether to apply a single pass or optimisation levels
+			if(get_rand(0, 1)){
+				stream << "run_on_simulator(main_circ, \"" << i+1 << "\")" << std::endl;
+			} else {
+				stream << "run_pass_on_simulator(main_circ, \"" << i+1 << "\", \"" << all_passes[passes_circuits++ % all_passes.size()] << "\")" << std::endl;
+			}
+			
 		} else{
-			if (get_rand(0, 1)) {	//Randomly choose whether to do a optimisation pass or a routing pass
-				stream << "compare_statevectors(" << global_info.name << ", \"" << qiskit_opt_passes[passes_circuits%qiskit_opt_passes.size()] << "\")" << std::endl;
-				passes_circuits++;
+			//Randomly choose whether to do a optimisation pass or a routing pass
+			if (get_rand(0, 1)) {	
+				stream << "compare_statevectors(" << global_info.name << ", \"" << all_passes[passes_circuits++ % all_passes.size()] << "\")" << std::endl;
 			}
 			else {
 				stream << global_info.name << ".measure_active()" << std::endl;

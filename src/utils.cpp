@@ -1,59 +1,58 @@
 #include "../headers/utils.h"
 #include <iostream>
 
+fs::path CIRCUITS_DIR = "quantum_circuits";
 frontend f = f_pytket;
 
-// constants 
-const int MIN_TOTAL_QUBITS = 4;
-const int MAX_TOTAL_QUBITS = 6;
-const int MIN_TOTAL_GATES = 20;
-const int MAX_TOTAL_GATES = 70;
-const int MAX_ADDED_CIRCBOX_QUBITS = 2;
-const int MIN_CIRCBOX_GATES = 4;
-const int MAX_CIRCBOX_GATES = 6;
-const int MAX_CIRCBOX_CONTROL_QUBITS = 3;
-const int MAX_CIRCB0XES = 5;
+struct gate_name_mapping{
+    gate_type t;
+    std::string name[SUPPORTED_FRONTENDS];
+};
 
-const int N_PAULIS = 4;
-const int N_INIT_BITS = 2;
-const int N_NAMED_BITS = 2;
-const float C_GATE_RATIO = 0.3;
+/// @brief Empty strings imply that the gate doesn't exist for that front end. This gate type will never be used by that front-end anyway
+const std::vector<gate_name_mapping> GATE_NAMES = {
+    {noop, {"noop", "noop", ""}},
+    {cy, {"CY", "cy", ""}},
+    {multiplexor, {"multiplexor", "multiplexor"}},
+    {x, {"X", "x", "X"}},
+    {y, {"Y", "y", "Y"}},
+    {z, {"Z", "z", "Z"}},
+    {v, {"V", "v", "V"}},
+    {u3, {"U3", "u3", "U3"}},
+    {u2, {"U2", "u2", "U2"}},
+    {u1, {"U1", "u1", "U1"}},
+    {swap, {"SWAP", "swap", "SWAP"}},
+    {tk1, {"TK1", "", ""}},   
+    {tk2, {"TK2", "", ""}},
+    {cx, {"CX", "cx", "CNOT"}},
+    {cz, {"CZ", "cz", "CZ"}},
+    {s, {"S", "s", "S"}},
+    {cnx, {"CnX", "cnx", ""}},
+    {cny, {"CnY", "cny", ""}},
+    {cnz, {"CnZ", "cnz", ""}},
+    {cnrx, {"CnRx", "cnrx", ""}},
+    {cnry, {"CnRy", "cnry", ""}},
+    {cnrz, {"CnRz", "cnrz", ""}},
+    {cnrx, {"CRx", "crx", ""}},
+    {cnry, {"CRy", "cry", ""}},
+    {crz, {"CRz", "crz", ""}},
+    {xxphase, {"XXPhase", "yyphase", ""}},
+    {yyphase, {"YYPhase", "yyphase", ""}},
+    {zzphase, {"ZZPhase", "zzphase", ""}},
+    {h, {"H", "h", ""}},
+    {rx, {"Rx", "rx", "rx"}},
+    {ry, {"Ry", "ry", "ry"}},
+    {rz, {"Rz", "rz", "ry"}},
+    {sx, {"", "sx", ""}},
+    {paulibox, {"pauli_box", "pauli_box"}},
+    {u, {"", "u", ""}},
+    {t, {"","","T"}},
+    {cswap, {"","","CSWAP"}},
+    {phasedxz, {"","","PhasedXZGate"}},
+    {phasedxpow, {"","","PhasedXPowGate"}}
+};
 
-const int MAX_NEST_DEPTH = 3;
-const int MAX_CIRCBOX_REPETITION_CIRC = 3;
-const int MAX_NEST_STATEMENTS = 4;
 
-fs::path CIRCUITS_DIR = "quantum_circuits";
-
-std::string paulis[N_PAULIS] = {"X", "Y", "Z", "I"};
-
-/// return a random number given a lower and upper bound (int)
-int get_rand(int lb, int ub){
-
-    if(lb <= ub){
-        std::random_device rd;
-        std::mt19937 gen(rd());
-
-        std::uniform_int_distribution<> dis(lb, ub);
-
-        int random_number = dis(gen);
-        
-        return random_number;
-    }
-    else{
-        std::cerr << "Lb is greater than ub" << std::endl;
-        return 0;
-    }
-}
-
-/// return a random number between lower and upper bound (float)
-float f_get_rand(float lb, float ub){
-    float denominator = 1000.0;
-    int i_lb = lb * denominator;
-    int i_ub = ub * denominator;
-
-    return (float)get_rand(i_lb, i_ub) / denominator;
-}
 
 std::bitset<4> numtobin(U4& number){
     std::bitset<4> binaryRepresentation(number);
@@ -61,17 +60,17 @@ std::bitset<4> numtobin(U4& number){
     return binaryRepresentation;
 }
 
-std::vector<std::string> qiskit_opt_passes = {"Optimize1qGates", "Optimize1qGatesDecomposition", "Collect1qRuns", "Collect2qBlocks",
-    "CollectMultiQBlocks","CollectLinearFunctions","CollectCliffords","ConsolidateBlocks","CXCancellation","InverseCancellation",
-    "CommutationAnalysis","CommutativeCancellation","CommutativeInverseCancellation","Optimize1qGatesSimpleCommutation","RemoveDiagonalGatesBeforeMeasure",
-    "RemoveResetInZeroState","RemoveFinalReset","HoareOptimizer","TemplateOptimization","ResetAfterMeasureSimplification",
-    "OptimizeCliffords","ElidePermutations","NormalizeRXAngle","OptimizeAnnotated", "AllOpt"
-};
+/// @brief Given a gate type flag, return the name of that gate as a string depending on frontend being generated
+/// @param t 
+/// @return 
+std::string get_gate_name(gate_type t){
+    for(size_t i = 0; i < GATE_NAMES.size(); ++i){
+        if(GATE_NAMES[i].t == t){
+            return GATE_NAMES[i].name[f];
+        }
+    }
 
-std::vector<std::string> cirq_all_passes = {"stratified_circuit","merge_single_qubit_gates_to_phased_x_and_z","merge_single_qubit_gates_to_phxz",
-    "merge_single_qubit_moments_to_phxz","merge_k_qubit_unitaries","expand_composite","eject_z", "eject_phased_paulis",
-    "add_dynamical_decoupling","drop_negligible_operations","drop_empty_moments","align_left", "align_right"};
+    std::cerr << "Gate type 2^" << get_lsb(t) << " doesn't have a defined name!" << std::endl;
+    exit(-1);
+}
 
-std::vector<std::string> cirq_target_gatesets = {"cz(allow_partial=True)", "cz(allow_partial=False)", "sqrtiswap"};
-
-std::vector<std::string> cirq_insert_strats = {"InsertStrategy.NEW", "InsertStrategy.NEW_THEN_INLINE", "InsertStrategy.INLINE", "InsertStrategy.EARLIEST"};

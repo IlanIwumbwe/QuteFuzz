@@ -1,8 +1,8 @@
-#include <unistd.h>
 #include "../headers/generator.h"
 
 void usage(){
-	std::cout << "Usage ./gen -n {programs to generate} [-q/-p/-c]" << std::endl;
+	std::cout << "Usage:\n./gen -n {programs to generate} [-q/-p/-c]" << std::endl;
+	std::cout << "-q - qiskit programs\n-p - pytket programs\n-c - cirq programs" << std::endl;
 }
 
 int get_files_to_generate(char* argv[]){
@@ -20,10 +20,10 @@ int get_files_to_generate(char* argv[]){
 
 int main(int argc, char* argv[]) {
 	int files_to_generate = 0;
-	
+
 	switch(argc){
 		case 4:
-			if(((std::string)argv[1] == "-n")){
+			if((std::string)argv[1] == "-n"){
 				files_to_generate = get_files_to_generate(argv);
 		
 				if((std::string)argv[3] == "-q"){
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 			break;
 
 		case 3:
-			if(((std::string)argv[1] == "-n")){
+			if((std::string)argv[1] == "-n"){
 				files_to_generate = get_files_to_generate(argv);
 			}
 
