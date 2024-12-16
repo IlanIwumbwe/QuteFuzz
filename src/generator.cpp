@@ -27,6 +27,7 @@ bool get_any_qubits(circuit_info& info, int n, std::vector<Resource>& chosen_res
 			if(!r->used){
 				r->used = true;
 				r->times_used += 1;
+				r->concurrent_resources.clear();
 				chosen_resources.push_back(*r);
 			}
 		}

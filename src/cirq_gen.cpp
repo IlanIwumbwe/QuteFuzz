@@ -81,6 +81,11 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 
 		bool found = (v_ccr.size() == 0);		
 
+		#ifdef DEV
+			std::cout << "Old qubit:" << std::endl;
+			std::cout << old_qubit;
+		#endif
+
 		while(!found && (choices_tried < num_of_choices)){
 			concurrent_qubit = v_ccr[index];
 
@@ -88,7 +93,9 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 				// this new_qubit was a bad choice and shouldn't be tried again
 				new_qubit->bad_choice_for_replacement = true;
 				
+				/// TODO: figure out why this loop goes infinitely sometimes
 				while(new_qubit->bad_choice_for_replacement){
+					//std::cout << "first try" << std::endl;
 					pos_of_replacement = get_rand(0, num_of_choices-1); 
 					new_qubit = &info.available_qubit_resources[pos_of_replacement];
 				}
