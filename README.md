@@ -68,6 +68,8 @@ All quantum circuits, logs and results will be shown in a `quantum_circuits` fol
 
 ## A note on constants chosen
 
+See [`headers/utils.h`](headers/utils.h)
+
 The constants were chosen with a preference towards generation of smaller individual circuits. We reasoned that if we can find bugs in smaller circuits, then this is still great. We often had to reduce the test cases before filing bug reports so this process was made easier too. Moreover, smaller circuits run much faster, and are quicker to generate, which reduces the time of our testing loop. We tried to focus on making the generator capable of generating expressive circuits such that if we generated a large volume of circuits, there would be some that could potentially cause problems for the compiler.   
 
 Nonetheless, we believe there is still some exploration that can be done. 
