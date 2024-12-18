@@ -62,7 +62,7 @@ This generates and runs a Pytket circuit by default
     ./gen -n {n}
     ```
 - Full usage: `./gen -n {programs to generate} [-q/-p/-c]`
-- If you want to monitor the generation steps more closely, you can compile with `DEV` flag by running `make DEV=1`
+- If you want to monitor the generation steps more closely, run `make clean` then `make dev` which will allow the program to print information during circuit generation. `-g` flag is also added so a debugger can be used as well.
 
 All quantum circuits, logs and results will be shown in a `quantum_circuits` folder in the repo directory
 
