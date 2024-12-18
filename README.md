@@ -5,13 +5,30 @@
 
 QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly. 
 
-## Contributors
+## Running the fuzzer
 
-| People | GitHub | Email | 
-|--------|--------|-------|
-| Benny  | [:octocat:](https://github.com/Bennybenassius) | benny.liu21@imperial.ac.uk |
-| Ilan  | [:octocat:](https://github.com/IlanIwumbwe) | ii122@imperial.ac.uk |
-| Dr. John Wickerson  | [:octocat:](https://github.com/johnwickerson) | j.wickerson@imperial.ac.uk |
+**Install python dependencies**
+```sh
+pip install -r requirements.txt
+```
+This installs all the helper functions we use for differential testing as well as all other dependencies required to run the circuits such as qiskit, pytket and cirq libraries.
+
+**Generate and run circuits**
+```sh
+python run.py
+```
+
+This generates and runs a Pytket circuit by default
+
+- To see all available flags, use `python run.py -h`.
+- You can run the generator on its own by compiling using `make`. Generate n circuits using:
+    ```sh
+    ./gen -n {n}
+    ```
+- Full usage: `./gen -n {programs to generate} [-q/-p/-c]`
+- If you want to monitor the generation steps more closely, run `make clean` then `make dev` which will allow the program to print information during circuit generation. `-g` flag is also added so a debugger can be used as well.
+
+All quantum circuits, logs and results will be shown in a `quantum_circuits` folder in the repo directory
 
 ## Bugs found with the help of QuteFuzz
 
@@ -41,30 +58,13 @@ QuteFuzz generates circuits for Pytket, Cirq, and Qiskit directly.
 |---------------|----------------|--------|
 | [Issue 6507 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6507) (Known) | [Issue 6730 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6730) | [Issue 6727 &#x1F41E;](https://github.com/quantumlib/Cirq/issues/6727) |
 
-## Running the fuzzer
+## Contributors
 
-**Install python dependencies**
-```sh
-pip install -r requirements.txt
-```
-This installs all the helper functions we use for differential testing as well as all other dependencies required to run the circuits such as qiskit, pytket and cirq libraries.
-
-**Generate and run circuits**
-```sh
-python run.py
-```
-
-This generates and runs a Pytket circuit by default
-
-- To see all available flags, use `python run.py -h`.
-- You can run the generator on its own by compiling using `make`. Generate n circuits using:
-    ```sh
-    ./gen -n {n}
-    ```
-- Full usage: `./gen -n {programs to generate} [-q/-p/-c]`
-- If you want to monitor the generation steps more closely, run `make clean` then `make dev` which will allow the program to print information during circuit generation. `-g` flag is also added so a debugger can be used as well.
-
-All quantum circuits, logs and results will be shown in a `quantum_circuits` folder in the repo directory
+| People | GitHub | Email | 
+|--------|--------|-------|
+| Benny  | [:octocat:](https://github.com/Bennybenassius) | benny.liu21@imperial.ac.uk |
+| Ilan  | [:octocat:](https://github.com/IlanIwumbwe) | ii122@imperial.ac.uk |
+| Dr. John Wickerson  | [:octocat:](https://github.com/johnwickerson) | j.wickerson@imperial.ac.uk |
 
 ## A note on constants chosen
 
