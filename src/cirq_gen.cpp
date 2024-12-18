@@ -95,7 +95,6 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 				// this new_qubit was a bad choice and shouldn't be tried again
 				new_qubit->bad_choice_for_replacement = true;
 				
-				/// TODO: figure out why this loop goes infinitely sometimes
 				while(new_qubit->bad_choice_for_replacement){
 					//std::cout << "first try" << std::endl;
 					pos_of_replacement = get_rand(0, num_of_choices-1); 
