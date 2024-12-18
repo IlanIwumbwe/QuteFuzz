@@ -67,6 +67,8 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 		int num_of_choices = info.get_total_qubits();
 		int pos_of_old_qubit = get_rand(0, g.resources_used.size()-1), pos_of_replacement = get_rand(0, num_of_choices-1), index = 0;
 
+		info.reset_resource_flags(); // this is used to reset the "bad_choice_for_replacement" flag.
+
 		Resource old_qubit = g.resources_used[pos_of_old_qubit], concurrent_qubit;
 		Resource* new_qubit = &info.available_qubit_resources[pos_of_replacement];
 
@@ -82,7 +84,7 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 		bool found = (v_ccr.size() == 0);		
 
 		#ifdef DEV
-			std::cout << "Old qubit:" << std::endl;
+			std::cout << "[LOG] Old qubit:" << std::endl;
 			std::cout << old_qubit;
 		#endif
 
@@ -120,19 +122,20 @@ void cirq::write_qubit_replacement(std::ofstream& stream, circuit_info& info, Ga
 		} 
 		
 		#ifdef DEV
-			std::cout << "Could not find any replacement qubits" << std::endl;
+			std::cout << "[LOG] Could not find any replacement qubits" << std::endl;
 		#endif
 
 	}
 		
 	#ifdef DEV
-		std::cout << "Chose not to add qubit mapping" << std::endl;
+		std::cout << "[LOG] Chose not to add qubit mapping" << std::endl;
 	#endif
 	
 }
 
-/// @brief For all qubit resources in this circuit that are the same as qubit resources used within this subroutine gate, 
-/// transfer all concurrency information from the qubit within the subroutine gate its counterpart in the circuit  
+/// @brief This is used to transfer information about which qubits are used together within a subroutine from a subroutine to another circuit in which the 
+/// subroutine is being used. So if a subroutine has qubits 0 and 1, 0 is concurrent with 1 and vice versa. A circuit that uses this subrountine will get this
+/// information and add it to its copy of qubit 0 and qubit 1.
 /// @param info 
 void cirq::transfer_concurrencies(circuit_info& info, Gate& g){
 	assert(g.type == circbox);
@@ -215,22 +218,30 @@ void cirq::write_circboxes(std::ofstream& stream, circuit_info& info){
 		circ.available_qubit_resources.clear();
 		get_any_qubits(info, gate.num_of_resources, circ.available_qubit_resources);	
 
+		circ.reset_resource_times_used();
+
 		circ.n_total_gates_added = 0;
 		circ.n_control_gates_added = 0;
 
 		write_circuit(stream, circ);
 
 		// keep track of which qubits were used together within the entire subroutine
-		// O(n^2) but n is at most 6 so eh
-		for(Resource ri : circ.available_qubit_resources){	
-			for(Resource rj : circ.available_qubit_resources){
-				if(!(ri == rj)){
-					ri.concurrent_resources.push_back(rj);
+		// O(n^2)
+		for(Resource& ri : circ.available_qubit_resources){	
+			if(ri.times_used){
+				for(Resource& rj : circ.available_qubit_resources){
+					if(!(ri == rj && rj.times_used)){
+						ri.concurrent_resources.push_back(rj);
+					}
 				}
+
+				gate.resources_used.push_back(ri);	
 			}
-		
-			gate.resources_used.push_back(ri);
 		}
+
+		#ifdef DEV
+			std::cout << circ << std::endl;
+		#endif
 
 		gate.num_of_control_gates = circ.n_control_gates_added;
 		gate.set_vars();
@@ -252,10 +263,6 @@ void cirq::write_circuit(std::ofstream& stream, circuit_info& info){
 	assert(info.available_bit_resources.size() == (size_t)info.get_total_bits());
 
 	apply_gates(stream, info);
-
-	#ifdef DEV
-		std::cout << info << std::endl;
-	#endif
 }
 
 void cirq::generate_circuits(int n){
@@ -291,6 +298,10 @@ void cirq::generate_circuits(int n){
         write_circboxes(stream, global_info);
 
 		write_circuit(stream, global_info);
+
+		#ifdef DEV
+			std::cout << global_info << std::endl;
+		#endif
 
 		stream << "\n";
 		stream << "print(Path(__file__).name, \" results:\")" << std::endl;

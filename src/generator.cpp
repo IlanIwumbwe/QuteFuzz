@@ -20,10 +20,6 @@ bool get_any_qubits(circuit_info& info, int n, std::vector<Resource>& chosen_res
 		while((int)chosen_resources.size() != n){
 			r = info.choose_random_resource(true);
 
-			#ifdef DEV
-				std::cout << "chosen r " << r->str << std::endl;
-			#endif
-		
 			if(!r->used){
 				r->used = true;
 				r->times_used += 1;

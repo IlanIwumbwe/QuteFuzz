@@ -101,6 +101,16 @@ struct circuit_info{
 		}
 	}
 
+	void reset_resource_times_used(){
+		for(Resource& r : available_qubit_resources){
+			r.times_used = 0;
+		}
+
+		for(Resource& r : available_bit_resources){
+			r.times_used = 0;
+		}
+	}
+
 	void reset_state(){
 		available_qubit_resources.clear();
 		available_bit_resources.clear();
